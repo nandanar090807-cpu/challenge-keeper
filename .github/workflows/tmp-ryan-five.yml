@@ -1,0 +1,35 @@
+name: temporary-ryan-five
+on:
+  push:
+    branches:
+      - tmp-edge-audition-20261106
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore temporary key
+        uses: actions/cache@v4
+        with:
+          path: .secure
+          key: edge-audition-rsa-v1
+      - name: Render Ryan neural track
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q --upgrade pip
+          python -m pip install -q edge-tts numpy scipy soundfile
+          python render_ryan5.py
+      - name: Upload final audio
+        uses: actions/upload-artifact@v4
+        with:
+          name: ryan-five-affirmations
+          path: output/
+          retention-days: 1
